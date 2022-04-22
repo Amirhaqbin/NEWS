@@ -2,6 +2,12 @@ from django.db import models
 from django.contrib.auth.models import User
 
 class NewsPage(models.Model):
+
+    STATUS_CHOICES ={
+        ('Draft','draft'),
+        ('Published','published')
+    }
+
     title = models.CharField(max_length=128)
     author = models.CharField(max_length=128)
     genre = models.CharField(max_length=128)
@@ -9,12 +15,13 @@ class NewsPage(models.Model):
     rate = models.FloatField(blank=True, null=True)
     news_text = models.TextField(blank=True, null=True)
     cover = models.ImageField(
-        upload_to='library/static', default='')
+        upload_to='khabari/static', default='')
     view_count = models.IntegerField(default=0)
+    slug = models.SlugField(max_length=250, unique=True)
     published_at = models.DateTimeField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='draft')
     def __str__(self):
         return self.title
 
