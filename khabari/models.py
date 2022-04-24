@@ -13,8 +13,8 @@ class NewsPage(models.Model):
     title = models.CharField(max_length=128)
     author = models.CharField(max_length=128)
     genre = models.CharField(max_length=128)
-    ratings = models.ManyToManyField(User, related_name='rating_comments', blank=True, through='Comment')
-    like = models.ManyToManyField(User, related_name='likes_newspage' ,blank=True, through='Like')
+    cm_likes = models.ManyToManyField(User, related_name='likes_comments', blank=True, through='Comment')
+    news_like = models.ManyToManyField(User, related_name='likes_newspage' ,blank=True, through='Like')
     news_text = models.TextField(blank=True, null=True)
     news_image = models.ImageField(
         upload_to='khabari/static', default='')
@@ -30,8 +30,8 @@ class NewsPage(models.Model):
 
 
 class Like(models.Model):
-    user = models.ForeignKey(User, related_name='likes_NewsPage', on_delete=models.CASCADE)
-    news = models.ForeignKey(NewsPage, related_name='likes_NewsPage',on_delete=models.CASCADE)
+    user = models.ForeignKey(User, related_name='likes', on_delete=models.CASCADE)
+    news = models.ForeignKey(NewsPage, related_name='like',on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add= True)
 
 
@@ -41,8 +41,7 @@ class Comment(models.Model):
     news = models.ForeignKey(
         NewsPage, related_name='comments', on_delete=models.CASCADE)
     text = models.TextField(blank=True, null=True)
-    rating = models.SmallIntegerField(
-        choices=[(i, i) for i in range(1, 6)], null=True, blank=True)
+    likes = models.BooleanField(default=False)
 
     class Meta:
         unique_together = (
