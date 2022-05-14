@@ -19,5 +19,5 @@ urlpatterns = router.urls + [
     path('news/<slug:slug>/like', NewsLike.as_view()),
     path('token/', TokenObtainPairView.as_view()),
     path('token/refresh/', TokenRefreshView.as_view()),
-    
+    path('otp', OtpView.as_view(), name='otp_view' )
     ]
