@@ -3,14 +3,14 @@ from rest_framework import viewsets, views, status
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 from .serializers import NewsPageSerializer, CommentSerializer, VerfyOtpRequestSerializer,OtpResponseSerializer, OtpRequestSerializer, ObtainTokenSerializer
-from .models import NewsPage, Comment, NewsLike, OtpRequest, CostumeUser
+from .models import NewsPage, Comment, NewsLike, OtpRequest
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render
 from rest_framework.views import APIView
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.tokens import RefreshToken
-
+from django.contrib.auth.models import User
 
 class LogoutAPIView(GenericAPIView):
     permission_class = (IsAuthenticated,)
@@ -93,7 +93,8 @@ class NewsLike(LikeAPIView):
     like_model = NewsLike
     lookup_field = "slug"
 
-
+class Register(APIView):
+    pass
 
 
 class OtpView(APIView):
@@ -123,12 +124,12 @@ class OtpView(APIView):
 
     def _handel_login(self, otp):
         # User = get_user_model()
-        query = CostumeUser.objects.filter(username=otp['receiver'])
+        query = User.objects.filter(username=otp['receiver'])
         if query.exists():
             created = False
             user = query.get()
         else:
-            user= CostumeUser.objects.create(username=otp['receiver'])
+            user= User.objects.create(username=otp['receiver'])
             created = True
     
         refresh = RefreshToken.for_user(user)

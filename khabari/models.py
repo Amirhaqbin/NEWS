@@ -10,6 +10,8 @@ from .sender import send_otp
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import AbstractUser
+from django.utils.text import slugify
+
 
 class Category(models.Model):
 
@@ -61,9 +63,11 @@ class NewsPage(models.Model):
         return self.title
 
     def save(self, *args, **kwargs):
-        n1 = NewsPage.objects.get(id=kwargs['id'])
-        self.like = n1.like_set.all().count()
+        # n1 = NewsPage.objects.get(id=kwargs['id'])
+        # self.like = n1.like_set.all().count()
+        self.slug = slugify(self.title)
         super(NewsPage, self).save(*args, **kwargs)
+
     class Meta:
         verbose_name = _("post")
         verbose_name_plural = _("posts")
@@ -78,7 +82,11 @@ class NewsLike(models.Model):
     user = models.ForeignKey(User, related_name='likes', on_delete=models.CASCADE)
     news = models.ForeignKey(NewsPage, related_name='likes',on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add= True)
-
+    
+    def save(self, *args, **kwrgs):
+        self.news.like = self.news.like+1
+        self.news.save()
+        super().save(*args, **kwrgs)
 
 class Comment(models.Model):
     user = models.ForeignKey(
@@ -130,8 +138,8 @@ def otp_generate():
     return ''.join(digits)
 
 
-class CostumeUser(AbstractUser):
-    pass
+# class CostumeUser(AbstractUser):
+#     pass
 
 
 class OtpRequest(models.Model):
