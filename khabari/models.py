@@ -13,10 +13,10 @@ from django.contrib.auth.models import AbstractUser
 from django.utils.text import slugify
 
 
-class Category(models.Model):
+# class Category(models.Model):
 
-    title = models.CharField(max_length=255)
-    active = models.BooleanField()
+#     title = models.CharField(max_length=255)
+#     active = models.BooleanField()
 
 
 
@@ -42,22 +42,24 @@ class NewsPage(models.Model):
 
 
     title = models.CharField(max_length=128)
+    slug = models.SlugField(allow_unicode=True, unique=True, null=False) 
     author = models.CharField(max_length=128)
-    genre = models.CharField(max_length=128)
     cm_likes = models.ManyToManyField(User, related_name='likes_comments', blank=True, through='Comment')
     like = models.IntegerField(default=0)
     news_text = models.TextField(blank=True, null=True)
     news_image = models.ImageField(
-        upload_to='khabari/static', default='')
+        upload_to='khabari/static', default='static/pic.jpg')
     video = models.FileField(
-        upload_to='rename_and_path', default='')
+        upload_to='khabari/static', blank=True, null=True)
+    has_video = models.BooleanField(default=False)    
     news_type = models.CharField(max_length=128,choices=TYPE_CHOICES, blank=True, null=True)    
     view_count = models.IntegerField(default=0)
-    slug = models.SlugField(allow_unicode=True, unique=True, null=False)
     published_at = models.DateTimeField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='draft')
+    recommended = models.BooleanField(default=False)
+    important = models.BooleanField(default=False)
 
     def __str__(self):
         return self.title
@@ -66,6 +68,9 @@ class NewsPage(models.Model):
         # n1 = NewsPage.objects.get(id=kwargs['id'])
         # self.like = n1.like_set.all().count()
         self.slug = slugify(self.title)
+        if self.video :
+            self.news_image = None   
+            self.has_video = True 
         super(NewsPage, self).save(*args, **kwargs)
 
     class Meta:
@@ -102,9 +107,11 @@ class Comment(models.Model):
             'user'
         )
 
+
 """
 under this, i added otp for who first time to join app 
 """
+
 class OtpRequestQueryset(models.QuerySet):
 
     def is_valid(self, receiver, request, password):

@@ -11,13 +11,14 @@ class NewsPageSerializer(serializers.ModelSerializer):
                 'id',
                 'title',
                 'author',
-                'genre',
+                'news_type',
                 'news_image',
                 'news_text',
                 'like',
                 'published_at',
                 'view_count',
-                'slug'
+                'slug', 
+                'created_at',
             )
             read_only_fields = (
                 'rate',

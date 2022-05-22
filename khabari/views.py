@@ -11,6 +11,7 @@ from rest_framework.views import APIView
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 class LogoutAPIView(GenericAPIView):
     permission_class = (IsAuthenticated,)
@@ -20,11 +21,54 @@ class LogoutAPIView(GenericAPIView):
         return Response(data={'message': f"{request.user.username} بدرور "})
 
 
+class VideosListView(APIView):
+    def get (self, request):
+        data = NewsPage.objects.filter(has_video=True)
+        serializer = NewsPageSerializer(data, many=True)
+        return Response(serializer.data)
+
+class TodaysNewsListView(APIView):
+    def get (self, request):
+        today = timezone.now().replace(hour=00, minute=00, second=00)
+        data = NewsPage.objects.filter(created_at__gte = today)
+        print(f'============== {today}')
+        print(f'============== {data}')
+        data2 = NewsPage.objects.all()
+        serializer = NewsPageSerializer(data, many=True)
+        return Response(serializer.data)
+    
+
+class ImportantNewsListView(APIView):
+    def get (self, request):
+        data = NewsPage.objects.filter(important = True)
+        serializer = NewsPageSerializer(data, many=True)
+        return Response(serializer.data)
+
+class popularNewsListView(APIView):
+    def get (self, request):
+        data = NewsPage.objects.order_by('-like')
+        serializer = NewsPageSerializer(data, many=True)
+        return Response(serializer.data)
+
+class NewestNewsListView(APIView):
+    def get (self, request):
+        data = NewsPage.objects.order_by('-created_at')
+        serializer = NewsPageSerializer(data, many=True)
+        return Response(serializer.data)
+
+
+class MostViewsNewsListView(APIView):
+    def get (self, request):
+        data = NewsPage.objects.order_by('-view_count')
+        serializer = NewsPageSerializer(data, many=True)
+        return Response(serializer.data)
+
+
 class NewsPageViewset(viewsets.ModelViewSet):
     permission_class = (IsAuthenticatedOrReadOnly,)
     serializer_class = NewsPageSerializer
     queryset = NewsPage.objects.all()
-    filterset_fields = ['title', 'genre', 'author', 'like']
+    filterset_fields = ['title', 'author', 'like']
     lookup_field = "slug"
 
     def retrieve(self, request, *args, **kwargs):
@@ -33,6 +77,12 @@ class NewsPageViewset(viewsets.ModelViewSet):
         object.save(update_fields=("view_count", ))
         return super().retrieve(request, *args, **kwargs)
 
+
+class RecommendedNewsListView(APIView):
+    def get (self, request):
+        data = NewsPage.objects.filter(recommended=True)
+        serializer = NewsPageSerializer(data, many=True)
+        return Response(serializer.data)
 
 class CommentViewset(viewsets.ModelViewSet):
     permission_class = (IsAuthenticatedOrReadOnly,)
