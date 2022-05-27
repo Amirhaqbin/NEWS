@@ -85,12 +85,16 @@ under this , write models for like and comment for details news and like for eac
 
 class NewsLike(models.Model):
     user = models.ForeignKey(User, related_name='likes', on_delete=models.CASCADE)
-    news = models.ForeignKey(NewsPage, related_name='likes',on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add= True)
+    newspage = models.ForeignKey(NewsPage, related_name='likes',on_delete=models.CASCADE)
     
     def save(self, *args, **kwrgs):
-        self.news.like = self.news.like+1
-        self.news.save()
+        self.newspage.like = self.news.like+1
+        self.newspage.save()
+        super().save(*args, **kwrgs)
+
+    def delete(self, *args, **kwrgs):
+        self.newspage.like = self.newspage.like-1
+        self.newspage.save()
         super().save(*args, **kwrgs)
 
 class Comment(models.Model):

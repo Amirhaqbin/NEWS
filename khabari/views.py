@@ -139,6 +139,7 @@ class LikeAPIView(views.APIView):
         return Response(status=204)
 
 class NewsLike(LikeAPIView):
+    permission_class = (IsAuthenticated,)
     main_model = NewsPage
     like_model = NewsLike
     lookup_field = "slug"
